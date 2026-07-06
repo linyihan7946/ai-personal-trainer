@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
 from ..core.config import get_settings, Settings
-from ..core.security import create_access_token
+from ..core.security import create_access_token, get_current_user
 from ..models.user import User
 from ..schemas.auth import (
     SendCodeRequest,
@@ -64,7 +64,8 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db), settings:
     if not user:
         user = User(phone=req.phone, nickname=f"同学{req.phone[-4:]}")
         db.add(user)
-        await db.flush()
+        await db.commit()
+        await db.refresh(user)
 
     # Generate token
     token = create_access_token(user.id, settings)
@@ -78,3 +79,16 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db), settings:
             avatar_url=user.avatar_url,
         ),
     )
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_me(
+    user_id: str = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get current user info."""
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    return user

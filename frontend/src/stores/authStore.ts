@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { authApi } from '../api/client'
 
 interface User {
   id: string
@@ -12,6 +13,7 @@ interface AuthState {
   isLoggedIn: boolean
   setUser: (user: User) => void
   logout: () => void
+  fetchMe: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -21,5 +23,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem('token')
     set({ user: null, isLoggedIn: false })
+  },
+  fetchMe: async () => {
+    try {
+      const res = await authApi.me()
+      set({ user: res.data, isLoggedIn: true })
+    } catch {
+      set({ user: null, isLoggedIn: false })
+      localStorage.removeItem('token')
+    }
   },
 }))

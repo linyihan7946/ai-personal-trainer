@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import BottomNav from './components/BottomNav'
@@ -10,6 +11,7 @@ import RedoQuestion from './pages/RedoQuestion'
 import KnowledgeBase from './pages/KnowledgeBase'
 import KnowledgeDetail from './pages/KnowledgeDetail'
 import Search from './pages/Search'
+import Profile from './pages/Profile'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
@@ -19,6 +21,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
+  const user = useAuthStore((s) => s.user)
+  const fetchMe = useAuthStore((s) => s.fetchMe)
+
+  // Fetch user info on mount if logged in but no user data
+  useEffect(() => {
+    if (isLoggedIn && !user) {
+      fetchMe()
+    }
+  }, [isLoggedIn, user, fetchMe])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,6 +97,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Search />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

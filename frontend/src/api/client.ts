@@ -30,6 +30,11 @@ api.interceptors.response.use(
 export const authApi = {
   sendCode: (phone: string) => api.post('/auth/send-code', { phone }),
   login: (phone: string, code: string) => api.post('/auth/login', { phone, code }),
+  me: () => api.get('/auth/me'),
+  logout: () => {
+    localStorage.removeItem('token')
+    window.location.href = '/login'
+  },
 }
 
 // --- Exam API ---

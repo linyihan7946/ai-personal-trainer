@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Upload, BookOpen, Brain } from 'lucide-react'
+import { Home, Upload, BookOpen, User } from 'lucide-react'
 
 const tabs = [
   { to: '/', icon: Home, label: '首页' },
   { to: '/upload', icon: Upload, label: '上传' },
   { to: '/wrong-questions', icon: BookOpen, label: '错题本' },
-  { to: '/knowledge', icon: Brain, label: '知识库' },
+  { to: '/profile', icon: User, label: '我的' },
 ]
 
 export default function BottomNav() {
