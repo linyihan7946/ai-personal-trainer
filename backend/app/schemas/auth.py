@@ -15,6 +15,7 @@ class UserResponse(BaseModel):
     phone: str
     nickname: str
     avatar_url: str | None = None
+    is_admin: bool = False
 
     class Config:
         from_attributes = True

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
-import { examApi, wrongQApi } from '../api/client'
+import { examApi, wrongQApi, adminApi } from '../api/client'
 import {
   ArrowLeft,
   User,
@@ -11,6 +11,9 @@ import {
   BookOpen,
   Brain,
   ChevronRight,
+  Shield,
+  Users,
+  TrendingUp,
 } from 'lucide-react'
 
 function maskPhone(phone: string): string {
@@ -22,8 +25,16 @@ export default function Profile() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [stats, setStats] = useState({ totalExams: 0, totalWrong: 0, totalKnowledge: 0 })
+  const [adminStats, setAdminStats] = useState({
+    total_users: 0,
+    today_active_users: 0,
+    total_exams: 0,
+    total_wrong_questions: 0,
+    total_knowledge_points: 0,
+  })
   const [loading, setLoading] = useState(true)
   const [showLogout, setShowLogout] = useState(false)
+  const isAdmin = user?.is_admin || false
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,12 +50,21 @@ export default function Profile() {
         })
       } catch {
         setStats({ totalExams: 0, totalWrong: 0, totalKnowledge: 0 })
-      } finally {
-        setLoading(false)
       }
+
+      if (isAdmin) {
+        try {
+          const res = await adminApi.stats()
+          setAdminStats(res.data)
+        } catch {
+          // Not admin or error
+        }
+      }
+
+      setLoading(false)
     }
     fetchData()
-  }, [])
+  }, [isAdmin])
 
   const handleLogout = () => {
     logout()
@@ -57,6 +77,14 @@ export default function Profile() {
     { label: '知识点', value: stats.totalKnowledge, icon: Brain },
   ]
 
+  const adminItems = [
+    { label: '总用户数', value: adminStats.total_users, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { label: '今日活跃', value: adminStats.today_active_users, icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-50' },
+    { label: '总试卷数', value: adminStats.total_exams, icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50' },
+    { label: '总错题数', value: adminStats.total_wrong_questions, icon: BookOpen, color: 'text-red-500', bg: 'bg-red-50' },
+    { label: '总知识点', value: adminStats.total_knowledge_points, icon: Brain, color: 'text-amber-500', bg: 'bg-amber-50' },
+  ]
+
   return (
     <div className="px-5 py-6">
       {/* Header */}
@@ -65,6 +93,12 @@ export default function Profile() {
           <ArrowLeft size={22} className="text-text" />
         </button>
         <h1 className="text-lg font-semibold">个人中心</h1>
+        {isAdmin && (
+          <span className="ml-auto flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+            <Shield size={14} />
+            管理员
+          </span>
+        )}
       </div>
 
       {/* User info card */}
@@ -81,8 +115,8 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      {/* Personal Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
         {statItems.map(({ label, value, icon: Icon }) => (
           <div
             key={label}
@@ -94,6 +128,27 @@ export default function Profile() {
           </div>
         ))}
       </div>
+
+      {/* Admin Stats — only for admin */}
+      {isAdmin && (
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
+            <Shield size={16} className="text-amber-500" />
+            数据统计
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {adminItems.map(({ label, value, icon: Icon, color, bg }) => (
+              <div key={label} className={`${bg} rounded-2xl p-4`}>
+                <div className="flex items-center gap-2">
+                  <Icon size={18} className={color} />
+                  <span className="text-xs text-text-secondary">{label}</span>
+                </div>
+                <div className="text-2xl font-bold mt-2 text-text">{loading ? '-' : value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Menu */}
       <div className="space-y-3 mb-8">

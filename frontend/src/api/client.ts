@@ -67,4 +67,9 @@ export const knowledgeApi = {
   search: (keyword: string) => api.get('/knowledge/search', { params: { q: keyword } }),
 }
 
+// --- Admin API ---
+export const adminApi = {
+  stats: () => api.get('/auth/admin/stats'),
+}
+
 export default api

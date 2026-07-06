@@ -6,6 +6,7 @@ interface User {
   phone: string
   nickname: string
   avatar_url?: string
+  is_admin: boolean
 }
 
 interface AuthState {

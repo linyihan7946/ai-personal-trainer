@@ -74,33 +74,33 @@ export default function Login() {
         </div>
 
         {/* Form */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
-            <label className="text-sm font-medium text-text mb-1.5 block">手机号</label>
+            <label className="text-base font-medium text-text mb-2 block">手机号</label>
             <input
               type="tel"
               maxLength={11}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="请输入手机号"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-bg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full px-5 py-5 rounded-2xl border border-border bg-bg text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
 
           {codeSent && (
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <input
                 type="text"
                 maxLength={6}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="验证码"
-                className="flex-1 px-4 py-3 rounded-xl border border-border bg-bg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                className="flex-1 px-5 py-5 rounded-2xl border border-border bg-bg text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
               <button
                 onClick={sendCode}
                 disabled={countdown > 0 || loading}
-                className="px-3 py-3 text-xs text-primary border border-primary/30 rounded-xl whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/5 transition-colors"
+                className="px-4 py-5 text-sm text-primary border border-primary/30 rounded-2xl whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/5 transition-colors font-medium"
               >
                 {countdown > 0 ? `${countdown}s` : '重新发送'}
               </button>
@@ -108,26 +108,26 @@ export default function Login() {
           )}
 
           {error && (
-            <div className="text-sm text-danger bg-red-50 px-4 py-2.5 rounded-lg">{error}</div>
+            <div className="text-sm text-danger bg-red-50 px-5 py-3 rounded-xl">{error}</div>
           )}
 
           {!codeSent ? (
             <button
               onClick={sendCode}
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-primary text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors disabled:opacity-50"
+              className="w-full py-5 rounded-2xl bg-primary text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors disabled:opacity-50 shadow-lg shadow-primary/25"
             >
               {loading ? '发送中...' : '获取验证码'}
-              <ArrowRight size={18} />
+              <ArrowRight size={22} />
             </button>
           ) : (
             <button
               onClick={login}
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-primary text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors disabled:opacity-50"
+              className="w-full py-5 rounded-2xl bg-primary text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors disabled:opacity-50 shadow-lg shadow-primary/25"
             >
               {loading ? '登录中...' : '登录'}
-              <ArrowRight size={18} />
+              <ArrowRight size={22} />
             </button>
           )}
         </div>
