@@ -14,6 +14,7 @@ import {
   Shield,
   Users,
   TrendingUp,
+  Search,
 } from 'lucide-react'
 
 function maskPhone(phone: string): string {
@@ -72,29 +73,34 @@ export default function Profile() {
   }
 
   const statItems = [
-    { label: '试卷', value: stats.totalExams, icon: FileText },
-    { label: '错题', value: stats.totalWrong, icon: BookOpen },
-    { label: '知识点', value: stats.totalKnowledge, icon: Brain },
+    { label: '试卷', value: stats.totalExams, icon: FileText, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: '错题', value: stats.totalWrong, icon: BookOpen, color: 'text-danger', bg: 'bg-danger/10' },
+    { label: '知识点', value: stats.totalKnowledge, icon: Brain, color: 'text-success', bg: 'bg-success/10' },
   ]
 
   const adminItems = [
-    { label: '总用户数', value: adminStats.total_users, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: '今日活跃', value: adminStats.today_active_users, icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-50' },
-    { label: '总试卷数', value: adminStats.total_exams, icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50' },
-    { label: '总错题数', value: adminStats.total_wrong_questions, icon: BookOpen, color: 'text-red-500', bg: 'bg-red-50' },
-    { label: '总知识点', value: adminStats.total_knowledge_points, icon: Brain, color: 'text-amber-500', bg: 'bg-amber-50' },
+    { label: '总用户数', value: adminStats.total_users, icon: Users, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: '今日活跃', value: adminStats.today_active_users, icon: TrendingUp, color: 'text-success', bg: 'bg-success/10' },
+    { label: '总试卷数', value: adminStats.total_exams, icon: FileText, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: '总错题数', value: adminStats.total_wrong_questions, icon: BookOpen, color: 'text-danger', bg: 'bg-danger/10' },
+    { label: '总知识点', value: adminStats.total_knowledge_points, icon: Brain, color: 'text-warning', bg: 'bg-warning/10' },
   ]
 
   return (
-    <div className="px-5 py-6">
+    <div className="study-page study-dashboard">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <button onClick={() => navigate(-1)} className="p-1">
-          <ArrowLeft size={22} className="text-text" />
-        </button>
-        <h1 className="text-lg font-semibold">个人中心</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-2xl bg-bg flex items-center justify-center flex-shrink-0">
+            <ArrowLeft size={22} className="text-text" />
+          </button>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-text">我的</h1>
+            <p className="text-xs text-text-secondary mt-0.5">管理账号和查看学习数据</p>
+          </div>
+        </div>
         {isAdmin && (
-          <span className="ml-auto flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-3 py-1.5 rounded-full whitespace-nowrap">
             <Shield size={14} />
             管理员
           </span>
@@ -102,38 +108,45 @@ export default function Profile() {
       </div>
 
       {/* User info card */}
-      <div className="flex items-center gap-4 p-5 rounded-2xl bg-primary/5 border border-primary/10 mb-6">
-        <div className="w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-          <User size={28} className="text-primary" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-base font-semibold text-text">{user?.nickname || '同学'}</div>
-          <div className="flex items-center gap-1.5 mt-1 text-sm text-text-secondary">
-            <Phone size={14} />
-            <span>{user?.phone ? maskPhone(user.phone) : '-'}</span>
+      <section className="study-panel">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <User size={30} className="text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-lg font-semibold text-text">{user?.nickname || '同学'}</div>
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-text-secondary">
+              <Phone size={14} />
+              <span>{user?.phone ? maskPhone(user.phone) : '-'}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Personal Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {statItems.map(({ label, value, icon: Icon }) => (
+      <section>
+        <h2 className="text-sm font-semibold text-text mb-3">学习数据</h2>
+        <div className="grid grid-cols-3 gap-3">
+        {statItems.map(({ label, value, icon: Icon, color, bg }) => (
           <div
             key={label}
-            className="flex flex-col items-center p-4 rounded-2xl bg-bg border border-border"
+            className={`${bg} rounded-2xl p-4`}
           >
-            <Icon size={20} className="text-text-secondary mb-1.5" />
-            <span className="text-xl font-bold text-text">{loading ? '-' : value}</span>
-            <span className="text-xs text-text-secondary mt-0.5">{label}</span>
+            <div className="flex items-center gap-2 text-text-secondary">
+              <Icon size={18} className={color} />
+              <span className="text-xs">{label}</span>
+            </div>
+            <div className="text-2xl font-bold mt-2 text-text">{loading ? '-' : value}</div>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
 
       {/* Admin Stats — only for admin */}
       {isAdmin && (
-        <div className="mb-6">
+        <section className="study-panel">
           <h2 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
-            <Shield size={16} className="text-amber-500" />
+            <Shield size={16} className="text-warning" />
             数据统计
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -147,18 +160,20 @@ export default function Profile() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Menu */}
-      <div className="space-y-3 mb-8">
+      <section>
+        <h2 className="text-sm font-semibold text-text mb-3">学习入口</h2>
+        <div className="space-y-3">
         <button
           onClick={() => navigate('/knowledge')}
-          className="w-full flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/30 transition-colors text-left"
+          className="w-full flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/30 hover:shadow-sm transition-all text-left"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-              <Brain size={20} className="text-purple-500" />
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Brain size={20} className="text-primary" />
             </div>
             <div>
               <div className="text-sm font-medium text-text">知识库</div>
@@ -170,11 +185,11 @@ export default function Profile() {
 
         <button
           onClick={() => navigate('/search')}
-          className="w-full flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/30 transition-colors text-left"
+          className="w-full flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/30 hover:shadow-sm transition-all text-left"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-              <Brain size={20} className="text-green-500" />
+            <div className="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center">
+              <Search size={20} className="text-success" />
             </div>
             <div>
               <div className="text-sm font-medium text-text">搜索</div>
@@ -183,7 +198,8 @@ export default function Profile() {
           </div>
           <ChevronRight size={18} className="text-text-secondary" />
         </button>
-      </div>
+        </div>
+      </section>
 
       {/* Logout */}
       <button

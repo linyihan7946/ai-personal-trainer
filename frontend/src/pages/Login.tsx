@@ -62,8 +62,8 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gradient-to-b from-primary/5 to-white">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center px-5">
+      <div className="w-full" style={{ maxWidth: 400 }}>
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
@@ -83,7 +83,7 @@ export default function Login() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="请输入手机号"
-              className="w-full px-5 py-5 rounded-2xl border border-border bg-bg text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full px-5 py-5 rounded-2xl border border-border bg-surface text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function Login() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="验证码"
-                className="flex-1 px-5 py-5 rounded-2xl border border-border bg-bg text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                className="flex-1 px-5 py-5 rounded-2xl border border-border bg-surface text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
               <button
                 onClick={sendCode}
@@ -108,7 +108,7 @@ export default function Login() {
           )}
 
           {error && (
-            <div className="text-sm text-danger bg-red-50 px-5 py-3 rounded-xl">{error}</div>
+            <div className="text-sm text-danger bg-red-50 px-5 py-3 rounded-2xl">{error}</div>
           )}
 
           {!codeSent ? (

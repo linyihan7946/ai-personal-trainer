@@ -21,15 +21,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
-  const user = useAuthStore((s) => s.user)
   const fetchMe = useAuthStore((s) => s.fetchMe)
 
-  // Fetch user info on mount if logged in but no user data
+  // Always fetch fresh user info on mount to get latest is_admin etc.
   useEffect(() => {
-    if (isLoggedIn && !user) {
+    if (isLoggedIn) {
       fetchMe()
     }
-  }, [isLoggedIn, user, fetchMe])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn])
 
   return (
     <div className="min-h-screen flex flex-col">
