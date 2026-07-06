@@ -1,0 +1,91 @@
+# ===========================
+# 环境变量 & 密钥（最重要！）
+# ===========================
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# ===========================
+# 数据库文件
+# ===========================
+*.db
+*.sqlite
+*.sqlite3
+backend/ai_trainer.db
+
+# ===========================
+# 用户上传文件
+# ===========================
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# ===========================
+# Node.js
+# ===========================
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# ===========================
+# 日志
+# ===========================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ===========================
+# 编辑器 & IDE
+# ===========================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# ===========================
+# OS 文件
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Docker (运行时数据)
+# ===========================
+postgres_data/
+
+# ===========================
+# 临时文件 & 缓存
+# ===========================
+*.tmp
+*.bak
+.cache/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/

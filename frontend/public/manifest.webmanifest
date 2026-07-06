@@ -1,0 +1,22 @@
+{
+  "name": "AI 私教 - 个人学习助手",
+  "short_name": "AI私教",
+  "description": "AI驱动的个人学习助手，拍照上传试卷，自动批改，构建个人知识库",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
