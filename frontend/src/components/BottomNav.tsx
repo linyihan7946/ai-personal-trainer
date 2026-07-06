@@ -12,15 +12,15 @@ export default function BottomNav() {
   const location = useLocation()
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-border z-50">
-      <div className="flex justify-around items-center h-16 px-2">
+    <nav className="app-bottom-nav fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-border z-50">
+      <div className="app-bottom-nav__inner flex justify-around items-center">
         {tabs.map(({ to, icon: Icon, label }) => {
           const active = location.pathname === to
           return (
             <NavLink
               key={to}
               to={to}
-              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+              className={`app-bottom-nav__item flex flex-col items-center gap-1 rounded-lg transition-colors ${
                 active ? 'text-primary' : 'text-text-secondary'
               }`}
             >

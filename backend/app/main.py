@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import os
+from sqlalchemy import inspect, text
 
 from .api.auth import router as auth_router
 from .api.exams import router as exams_router
@@ -15,12 +16,32 @@ from .models import Base
 settings = get_settings()
 
 
+def _ensure_sqlite_dev_schema(conn):
+    """Keep local SQLite databases compatible with lightweight dev startup."""
+    if conn.dialect.name != "sqlite":
+        return
+
+    inspector = inspect(conn)
+    if "exams" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("exams")}
+    if "subject" not in columns:
+        conn.execute(text("ALTER TABLE exams ADD COLUMN subject VARCHAR(20) NOT NULL DEFAULT '通用'"))
+        columns.add("subject")
+
+    indexes = {index["name"] for index in inspector.get_indexes("exams")}
+    if "subject" in columns and "ix_exams_subject" not in indexes:
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_exams_subject ON exams (subject)"))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create tables on startup
     engine = get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_ensure_sqlite_dev_schema)
     yield
 
 
