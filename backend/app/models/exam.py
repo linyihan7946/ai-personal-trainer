@@ -14,6 +14,7 @@ class Exam(Base):
     correct_count: Mapped[int] = mapped_column(Integer, default=0)
     wrong_count: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(20), default="processing")  # processing, done
+    subject: Mapped[str] = mapped_column(String(20), default="通用", index=True)  # 学科
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 
     questions: Mapped[list["Question"]] = relationship(back_populates="exam", lazy="selectin")

@@ -1,5 +1,5 @@
 import aiofiles
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
@@ -14,6 +14,7 @@ router = APIRouter(prefix="/exams", tags=["exams"])
 @router.post("/upload", response_model=ExamResponse)
 async def upload_exam(
     file: UploadFile = File(...),
+    subject: str = Form("通用"),
     user_id: str = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -28,7 +29,7 @@ async def upload_exam(
         raise HTTPException(status_code=400, detail=f"图片大小不能超过{settings.max_upload_size_mb}MB")
 
     # Process
-    exam = await process_exam_upload(db, user_id, image_data, settings.upload_dir)
+    exam = await process_exam_upload(db, user_id, image_data, settings.upload_dir, subject)
     await db.commit()
 
     # Reload with questions
@@ -52,6 +53,7 @@ async def list_exams(
                 correct_count=e.correct_count,
                 wrong_count=e.wrong_count,
                 status=e.status,
+                subject=e.subject,
                 questions=[],
                 created_at=e.created_at,
             )

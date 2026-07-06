@@ -16,6 +16,7 @@ async def process_exam_upload(
     user_id: str,
     image_data: bytes,
     upload_dir: str,
+    subject: str = "通用",
 ) -> Exam:
     """Process an uploaded exam: save image, call AI grading, create records."""
 
@@ -28,13 +29,14 @@ async def process_exam_upload(
     image_url = f"/uploads/{filename}"
 
     # Call AI grading
-    result = await grade_exam(image_data)
+    result = await grade_exam(image_data, subject)
 
     # Create exam record
     exam = Exam(
         user_id=user_id,
         image_url=image_url,
         status="processing",
+        subject=subject,
     )
     db.add(exam)
     await db.flush()  # Ensure exam.id is populated

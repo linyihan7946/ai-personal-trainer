@@ -47,7 +47,7 @@ export default function Home() {
   ]
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-5 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -73,19 +73,19 @@ export default function Home() {
       {/* Quick Actions */}
       <div className="mb-6">
         <h2 className="text-sm font-semibold text-text mb-3">快捷操作</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {quickActions.map(({ label, desc, to, icon: Icon, bg }) => (
             <button
               key={to}
               onClick={() => navigate(to)}
-              className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/30 hover:shadow-sm transition-all text-left"
+              className="flex items-center gap-4 p-5 rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all text-left"
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${bg}`}>
-                <Icon size={20} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${bg}`}>
+                <Icon size={22} />
               </div>
-              <div>
-                <div className="text-sm font-medium">{label}</div>
-                <div className="text-xs text-text-secondary">{desc}</div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold">{label}</div>
+                <div className="text-xs text-text-secondary mt-0.5 truncate">{desc}</div>
               </div>
             </button>
           ))}
@@ -109,22 +109,27 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {exams.slice(0, 5).map((exam: Exam) => (
               <button
                 key={exam.id}
                 onClick={() => navigate(`/exam/${exam.id}`)}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-border hover:border-primary/30 transition-colors text-left"
+                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-primary/30 transition-colors text-left"
               >
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium">
                     {new Date(exam.created_at).toLocaleDateString('zh-CN')} 的试卷
+                    {exam.subject && exam.subject !== '通用' && (
+                      <span className="ml-2 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                        {exam.subject}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-xs text-text-secondary mt-0.5">
+                  <div className="text-xs text-text-secondary mt-1">
                     共 {exam.total_questions} 题 · 正确 {exam.correct_count} · 错误 {exam.wrong_count}
                   </div>
                 </div>
-                <ChevronRight size={18} className="text-text-secondary flex-shrink-0" />
+                <ChevronRight size={18} className="text-text-secondary flex-shrink-0 ml-3" />
               </button>
             ))}
           </div>

@@ -34,9 +34,10 @@ export const authApi = {
 
 // --- Exam API ---
 export const examApi = {
-  upload: (file: File) => {
+  upload: (file: File, subject?: string) => {
     const form = new FormData()
     form.append('file', file)
+    form.append('subject', subject || '通用')
     return api.post('/exams/upload', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })

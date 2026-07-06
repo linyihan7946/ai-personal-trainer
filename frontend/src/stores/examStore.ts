@@ -18,6 +18,7 @@ export interface Exam {
   correct_count: number
   wrong_count: number
   status: 'processing' | 'done'
+  subject: string
   questions: Question[]
   created_at: string
 }

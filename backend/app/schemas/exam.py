@@ -23,6 +23,7 @@ class ExamResponse(BaseModel):
     correct_count: int
     wrong_count: int
     status: str
+    subject: str = "通用"
     questions: list[QuestionResponse] = []
     created_at: datetime
 

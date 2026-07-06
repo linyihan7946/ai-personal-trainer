@@ -5,12 +5,18 @@ import { useExamStore } from '../stores/examStore'
 import CameraCapture from '../components/CameraCapture'
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
 
+const SUBJECTS = [
+  '通用', '数学', '英语', '语文', '物理', '化学',
+  '生物', '历史', '地理', '政治',
+]
+
 export default function Upload() {
   const navigate = useNavigate()
   const addExam = useExamStore((s) => s.addExam)
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [subject, setSubject] = useState('通用')
 
   const handleCapture = (file: File) => {
     setSelectedFile(file)
@@ -22,7 +28,7 @@ export default function Upload() {
     if (!selectedFile) return
     setUploading(true)
     try {
-      const res = await examApi.upload(selectedFile)
+      const res = await examApi.upload(selectedFile, subject)
       const exam = res.data
       addExam(exam)
       navigate(`/exam/${exam.id}`, { replace: true })
@@ -35,6 +41,7 @@ export default function Upload() {
         correct_count: 3,
         wrong_count: 2,
         status: 'done' as const,
+        subject,
         questions: [
           {
             id: '1',
@@ -85,7 +92,7 @@ export default function Upload() {
   }
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-5 py-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate(-1)} className="p-1">
@@ -102,11 +109,32 @@ export default function Upload() {
             <img src={preview} alt="preview" className="w-full object-cover max-h-80" />
           </div>
 
+          {/* Subject selector */}
+          <div>
+            <div className="text-sm font-medium text-text mb-2">选择学科</div>
+            <div className="flex flex-wrap gap-2">
+              {SUBJECTS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSubject(s)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    subject === s
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-bg text-text-secondary border border-border hover:border-primary/40'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex gap-3">
             <button
               onClick={() => {
                 setPreview(null)
                 setSelectedFile(null)
+                setSubject('通用')
               }}
               className="flex-1 py-3 rounded-xl border border-border text-sm font-medium hover:bg-bg transition-colors"
             >
