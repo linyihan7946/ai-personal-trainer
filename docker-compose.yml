@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_trainer"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
     restart: unless-stopped
 
   backend:
@@ -28,7 +33,8 @@ services:
       - uploads_data:/app/uploads
       - ./backend:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 

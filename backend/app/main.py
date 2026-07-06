@@ -14,6 +14,9 @@ from .core.database import get_engine
 from .models import Base
 
 settings = get_settings()
+public_base_path = os.environ.get("PUBLIC_BASE_PATH", "").strip().rstrip("/")
+if public_base_path and not public_base_path.startswith("/"):
+    public_base_path = f"/{public_base_path}"
 
 
 def _ensure_sqlite_dev_schema(conn):
@@ -45,7 +48,14 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title=settings.app_name,
+    version="0.1.0",
+    lifespan=lifespan,
+    docs_url=f"{public_base_path}/docs" if public_base_path else "/docs",
+    redoc_url=f"{public_base_path}/redoc" if public_base_path else "/redoc",
+    openapi_url=f"{public_base_path}/openapi.json" if public_base_path else "/openapi.json",
+)
 
 # CORS
 app.add_middleware(
@@ -61,12 +71,23 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
 app.include_router(wrong_q_router, prefix="/api")
 app.include_router(knowledge_router, prefix="/api")
+if public_base_path:
+    app.include_router(auth_router, prefix=f"{public_base_path}/api")
+    app.include_router(exams_router, prefix=f"{public_base_path}/api")
+    app.include_router(wrong_q_router, prefix=f"{public_base_path}/api")
+    app.include_router(knowledge_router, prefix=f"{public_base_path}/api")
 
 # Static files for uploaded images
 os.makedirs(settings.upload_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
+if public_base_path:
+    app.mount(f"{public_base_path}/uploads", StaticFiles(directory=settings.upload_dir), name="prefixed_uploads")
 
 
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "app": settings.app_name}
+
+
+if public_base_path:
+    app.add_api_route(f"{public_base_path}/api/health", health_check, methods=["GET"])
