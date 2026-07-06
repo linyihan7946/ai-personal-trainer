@@ -39,24 +39,27 @@ export default function KnowledgeBase() {
   }, [setGraph])
 
   return (
-    <div className="px-4 py-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-1">
+    <div className="study-page study-dashboard">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-2xl bg-bg flex items-center justify-center flex-shrink-0">
             <ArrowLeft size={22} className="text-text" />
           </button>
-          <h1 className="text-lg font-semibold">个人知识库</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-text">个人知识库</h1>
+            <p className="text-xs text-text-secondary mt-0.5">查看知识点关系和掌握程度</p>
+          </div>
         </div>
-        <div className="flex gap-1 bg-bg rounded-lg p-0.5">
+        <div className="flex gap-1 bg-bg rounded-xl p-1 flex-shrink-0">
           <button
             onClick={() => setViewMode('graph')}
-            className={`p-1.5 rounded-md transition-colors ${viewMode === 'graph' ? 'bg-white shadow-sm' : ''}`}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'graph' ? 'bg-white shadow-sm' : ''}`}
           >
             <Brain size={18} className={viewMode === 'graph' ? 'text-primary' : 'text-text-secondary'} />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
           >
             <List size={18} className={viewMode === 'list' ? 'text-primary' : 'text-text-secondary'} />
           </button>
@@ -66,28 +69,35 @@ export default function KnowledgeBase() {
       {/* Search bar */}
       <button
         onClick={() => navigate('/search')}
-        className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-bg text-text-secondary text-sm mb-4 hover:border-primary/30 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-border bg-bg text-text-secondary text-sm hover:border-primary/30 transition-colors text-left"
       >
         <Search size={16} />
         <span>搜索知识点...</span>
       </button>
 
       {loading ? (
-        <div className="text-center py-20 text-text-secondary text-sm">加载中...</div>
+        <div className="study-panel text-center py-20 text-text-secondary text-sm">加载中...</div>
       ) : viewMode === 'graph' ? (
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <section className="study-panel overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold text-text">知识图谱</h2>
+              <p className="text-xs text-text-secondary mt-1">{graph?.nodes.length || 0} 个知识点</p>
+            </div>
+            <Brain size={20} className="text-primary" />
+          </div>
           <KnowledgeGraph nodes={graph?.nodes || []} edges={graph?.edges || []} />
-        </div>
+        </section>
       ) : (
-        <div className="space-y-2">
+        <section className="space-y-3">
           {(graph?.nodes || []).map((node) => (
             <button
               key={node.id}
               onClick={() => navigate(`/knowledge/${node.id}`)}
-              className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/30 transition-colors text-left"
+              className="w-full flex items-center gap-3 p-4 rounded-2xl border border-border hover:border-primary/30 hover:shadow-sm transition-all text-left"
             >
               <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
+                className="w-4 h-4 rounded-full flex-shrink-0"
                 style={{
                   backgroundColor: getCategoryColor(node.category),
                 }}
@@ -112,7 +122,7 @@ export default function KnowledgeBase() {
               </div>
             </button>
           ))}
-        </div>
+        </section>
       )}
     </div>
   )

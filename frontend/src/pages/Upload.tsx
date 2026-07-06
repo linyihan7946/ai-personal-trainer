@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { examApi } from '../api/client'
 import { useExamStore } from '../stores/examStore'
 import CameraCapture from '../components/CameraCapture'
-import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
 
 const SUBJECTS = [
   '通用', '数学', '英语', '语文', '物理', '化学',
@@ -17,6 +17,8 @@ export default function Upload() {
   const [preview, setPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [subject, setSubject] = useState('通用')
+  const [lastExamId, setLastExamId] = useState<string | null>(null)
+  const [uploadCount, setUploadCount] = useState(0)
 
   const handleCapture = (file: File) => {
     setSelectedFile(file)
@@ -31,7 +33,11 @@ export default function Upload() {
       const res = await examApi.upload(selectedFile, subject)
       const exam = res.data
       addExam(exam)
-      navigate(`/exam/${exam.id}`, { replace: true })
+      setLastExamId(exam.id)
+      setUploadCount((c) => c + 1)
+      // 重置预览，允许继续上传
+      setPreview(null)
+      setSelectedFile(null)
     } catch {
       // If backend unavailable, show demo result
       const mockExam = {
@@ -66,7 +72,10 @@ export default function Upload() {
         created_at: new Date().toISOString(),
       }
       addExam(mockExam)
-      navigate(`/exam/${mockExam.id}`, { replace: true })
+      setLastExamId(mockExam.id)
+      setUploadCount((c) => c + 1)
+      setPreview(null)
+      setSelectedFile(null)
     } finally {
       setUploading(false)
     }
@@ -92,41 +101,63 @@ export default function Upload() {
   }
 
   return (
-    <div className="px-5 py-6">
+    <div className="upload-page upload-dashboard">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(-1)} className="p-1">
-          <ArrowLeft size={22} className="text-text" />
-        </button>
-        <h1 className="text-lg font-semibold">上传试卷</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-2xl bg-bg flex items-center justify-center">
+            <ArrowLeft size={22} className="text-text" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">上传试卷</h1>
+            <p className="text-xs text-text-secondary mt-0.5">选择学科后拍照或从相册上传</p>
+          </div>
+        </div>
+        {uploadCount > 0 && (
+          <span className="text-xs text-primary bg-primary/10 px-2.5 py-1 rounded-full font-medium">
+            已上传 {uploadCount} 份
+          </span>
+        )}
       </div>
+
+      {/* Subject selector — always on top */}
+      <section className="upload-subject-card">
+        <div className="flex items-start justify-between gap-3 mb-5">
+          <div>
+            <div className="text-base font-semibold text-text">选择学科</div>
+            <div className="text-xs text-text-secondary mt-1">AI 会按学科提示识别题目和知识点</div>
+          </div>
+          <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+            <Sparkles size={20} />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {SUBJECTS.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSubject(s)}
+              className={`py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${
+                subject === s
+                  ? 'bg-primary text-white shadow-md shadow-primary/20'
+                  : 'bg-bg text-text border border-border hover:border-primary/50'
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {!preview ? (
         <CameraCapture onCapture={handleCapture} />
       ) : (
-        <div className="space-y-4">
-          <div className="rounded-xl overflow-hidden border border-border">
-            <img src={preview} alt="preview" className="w-full object-cover max-h-80" />
-          </div>
-
-          {/* Subject selector */}
+        <div className="upload-preview-panel space-y-4">
           <div>
-            <div className="text-sm font-medium text-text mb-2">选择学科</div>
-            <div className="flex flex-wrap gap-2">
-              {SUBJECTS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSubject(s)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    subject === s
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-bg text-text-secondary border border-border hover:border-primary/40'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+            <h2 className="text-base font-semibold text-text">确认试卷图片</h2>
+            <p className="text-xs text-text-secondary mt-1">确认清晰后提交批改，也可以重新选择</p>
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-border bg-bg">
+            <img src={preview} alt="preview" className="w-full object-cover max-h-80" />
           </div>
 
           <div className="flex gap-3">
@@ -134,18 +165,40 @@ export default function Upload() {
               onClick={() => {
                 setPreview(null)
                 setSelectedFile(null)
-                setSubject('通用')
               }}
-              className="flex-1 py-3 rounded-xl border border-border text-sm font-medium hover:bg-bg transition-colors"
+              className="flex-1 py-3.5 rounded-xl border border-border text-sm font-medium hover:bg-bg transition-colors"
             >
               重新选择
             </button>
             <button
               onClick={handleUpload}
-              className="flex-1 py-3 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
             >
               <CheckCircle size={18} />
               提交批改
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom action: view result or continue */}
+      {lastExamId && !preview && (
+        <div className="mt-6 p-4 rounded-2xl bg-primary/5 border border-primary/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-text">
+                {uploadCount === 1 ? '第 1 份试卷已批改完成' : `第 ${uploadCount} 份试卷已批改完成`}
+              </div>
+              <div className="text-xs text-text-secondary mt-1">
+                可继续拍照上传，或查看批改结果
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/exam/${lastExamId}`)}
+              className="flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+            >
+              查看
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>

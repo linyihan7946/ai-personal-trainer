@@ -81,26 +81,35 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 py-8">
+    <div className="upload-capture-panel">
+      <div>
+        <h2 className="text-base font-semibold text-text">上传方式</h2>
+        <p className="text-xs text-text-secondary mt-1">拍摄清晰、平整的试卷，识别效果会更好</p>
+      </div>
+
       {error && (
         <div className="text-sm text-danger bg-red-50 px-4 py-2 rounded-lg">{error}</div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
+      <div className="grid grid-cols-2 gap-4 w-full">
         <button
           onClick={startCamera}
-          className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-colors"
+          className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10 transition-colors"
         >
-          <Camera size={32} className="text-primary" />
-          <span className="text-sm font-medium text-primary">拍照上传</span>
+          <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center">
+            <Camera size={26} />
+          </div>
+          <span className="text-sm font-semibold text-primary">拍照上传</span>
         </button>
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-colors"
+          className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10 transition-colors"
         >
-          <Image size={32} className="text-primary" />
-          <span className="text-sm font-medium text-primary">相册选取</span>
+          <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center">
+            <Image size={26} />
+          </div>
+          <span className="text-sm font-semibold text-primary">相册选取</span>
         </button>
       </div>
 
@@ -113,7 +122,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         className="hidden"
       />
 
-      <p className="text-xs text-text-secondary mt-2">支持 JPG、PNG 格式，建议拍摄清晰、平整的试卷</p>
+      <p className="text-xs text-text-secondary text-center">支持 JPG、PNG 格式，单张图片不超过 10MB</p>
     </div>
   )
 }
