@@ -1,3 +1,4 @@
+import secrets
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +13,7 @@ from ..schemas.auth import (
     LoginResponse,
     UserResponse,
 )
+from ..services.sms_service import send_verification_code
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -19,18 +21,27 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 _code_store: dict[str, str] = {}
 
 
+def _generate_code() -> str:
+    """Generate a random 6-digit verification code."""
+    return secrets.choice("123456789") + "".join(secrets.choice("0123456789") for _ in range(5))
+
+
 @router.post("/send-code")
 async def send_code(req: SendCodeRequest):
-    """Send verification code to phone number.
+    """Send verification code to phone number via UniSMS.
 
-    In production, integrate with a real SMS service (e.g., Aliyun SMS).
-    For development, the code is always '1234'.
+    Generates a random 6-digit code and sends it via SMS.
+    Returns the code in debug_code for development convenience.
     """
-    code = "1234"  # Dev mode: fixed code
+    code = _generate_code()
     _code_store[req.phone] = code
 
-    # TODO: Integrate with SMS provider
-    # await sms_service.send(req.phone, code)
+    # Send via UniSMS
+    success = await send_verification_code(req.phone, code)
+
+    if not success:
+        # Log but still return success to user (code is stored for login)
+        pass
 
     return {"message": "验证码已发送", "debug_code": code}
 

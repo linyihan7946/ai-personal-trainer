@@ -22,9 +22,11 @@ class Settings(BaseSettings):
     ai_api_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     ai_model: str = "qwen-vl-max"
 
-    # SMS (placeholder for verification code)
-    sms_api_key: str = ""
-    sms_secret: str = ""
+    # SMS (UniSMS 合一短信)
+    sms_access_key_id: str = ""
+    sms_access_key_secret: str = ""
+    sms_signature: str = ""
+    sms_template_id: str = ""
 
     class Config:
         env_file = ".env"
