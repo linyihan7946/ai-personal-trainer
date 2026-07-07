@@ -1,32 +1,45 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { examApi } from '../api/client'
-import { useExamStore } from '../stores/examStore'
+import { useExamStore, type Exam } from '../stores/examStore'
 import QuestionCard from '../components/QuestionCard'
 import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 export default function ExamResult() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { currentExam, setCurrentExam } = useExamStore()
+  const { currentExam, setCurrentExam, exams } = useExamStore()
   const [loading, setLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     if (!id) return
 
-    // Check if we already have it in store
+    // First check if exam is already in store
+    const cached = exams.find((e: Exam) => e.id === id)
+    if (cached) {
+      setCurrentExam(cached)
+      setLoading(false)
+      return
+    }
+
+    // Otherwise fetch from API
     const fetchExam = async () => {
       try {
         const res = await examApi.detail(id)
         setCurrentExam(res.data)
       } catch {
-        // Use existing data from store if available
+        // API failed, currentExam stays null → show error
       } finally {
         setLoading(false)
       }
     }
     fetchExam()
-  }, [id, setCurrentExam])
+  }, [id, setCurrentExam, exams])
+
+  useEffect(() => {
+    setImageError(false)
+  }, [currentExam?.image_url])
 
   if (loading) {
     return (
@@ -107,11 +120,18 @@ export default function ExamResult() {
       {/* Original Image */}
       {image_url && (
         <div className="mb-4">
-          <img
-            src={image_url}
-            alt="试卷原图"
-            className="w-full rounded-xl border border-border max-h-48 object-cover"
-          />
+          {!imageError ? (
+            <img
+              src={image_url}
+              alt="试卷原图"
+              className="w-full rounded-xl border border-border max-h-72 object-contain bg-bg"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="rounded-xl border border-border bg-bg px-4 py-6 text-center text-sm text-text-secondary">
+              试卷原图加载失败，请确认后端服务已启动
+            </div>
+          )}
         </div>
       )}
 

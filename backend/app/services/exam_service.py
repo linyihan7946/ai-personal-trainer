@@ -1,7 +1,9 @@
 import os
 import json
 import uuid
+from io import BytesIO
 from datetime import datetime, timezone
+from PIL import Image, ImageOps
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +11,19 @@ from ..models.exam import Exam, Question
 from ..models.wrong_question import WrongQuestion
 from ..models.knowledge import KnowledgePoint, KnowledgeRelation
 from .ai_service import grade_exam
+
+
+def _auto_orient_image(image_data: bytes) -> bytes:
+    """Auto-rotate/flip image based on EXIF orientation tag.
+
+    Modern smartphones store orientation in EXIF metadata.
+    This ensures the image is upright before saving and AI processing.
+    """
+    img = Image.open(BytesIO(image_data))
+    img = ImageOps.exif_transpose(img)
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
 
 
 async def process_exam_upload(
@@ -19,6 +34,9 @@ async def process_exam_upload(
     subject: str = "通用",
 ) -> Exam:
     """Process an uploaded exam: save image, call AI grading, create records."""
+
+    # Auto-correct image orientation (EXIF rotation)
+    image_data = _auto_orient_image(image_data)
 
     # Save uploaded image
     os.makedirs(upload_dir, exist_ok=True)

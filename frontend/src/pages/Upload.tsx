@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { examApi } from '../api/client'
 import { useExamStore } from '../stores/examStore'
 import CameraCapture from '../components/CameraCapture'
-import { ArrowLeft, Loader2, CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowLeft, Loader2, CheckCircle, ArrowRight, Sparkles, RotateCcw, RotateCw } from 'lucide-react'
+import { orientImage, rotateImage } from '../utils/exif'
 
 const SUBJECTS = [
   '通用', '数学', '英语', '语文', '物理', '化学',
@@ -13,17 +14,40 @@ const SUBJECTS = [
 export default function Upload() {
   const navigate = useNavigate()
   const addExam = useExamStore((s) => s.addExam)
+  const setCurrentExam = useExamStore((s) => s.setCurrentExam)
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [subject, setSubject] = useState('通用')
   const [lastExamId, setLastExamId] = useState<string | null>(null)
   const [uploadCount, setUploadCount] = useState(0)
+  const [rotating, setRotating] = useState(false)
 
-  const handleCapture = (file: File) => {
+  const handleCapture = async (file: File) => {
+    // Auto-rotate based on EXIF orientation
+    const { file: corrected, previewUrl } = await orientImage(file)
+    setSelectedFile(corrected)
+    setPreview(previewUrl)
+  }
+
+  const updatePreview = (file: File, previewUrl: string) => {
     setSelectedFile(file)
-    const url = URL.createObjectURL(file)
-    setPreview(url)
+    setPreview((oldPreview) => {
+      if (oldPreview) URL.revokeObjectURL(oldPreview)
+      return previewUrl
+    })
+  }
+
+  const handleRotate = async (degrees: number) => {
+    if (!selectedFile || rotating) return
+
+    setRotating(true)
+    try {
+      const { file, previewUrl } = await rotateImage(selectedFile, degrees)
+      updatePreview(file, previewUrl)
+    } finally {
+      setRotating(false)
+    }
   }
 
   const handleUpload = async () => {
@@ -33,9 +57,11 @@ export default function Upload() {
       const res = await examApi.upload(selectedFile, subject)
       const exam = res.data
       addExam(exam)
+      setCurrentExam(exam)
       setLastExamId(exam.id)
       setUploadCount((c) => c + 1)
       // 重置预览，允许继续上传
+      if (preview) URL.revokeObjectURL(preview)
       setPreview(null)
       setSelectedFile(null)
     } catch {
@@ -72,8 +98,10 @@ export default function Upload() {
         created_at: new Date().toISOString(),
       }
       addExam(mockExam)
+      setCurrentExam(mockExam)
       setLastExamId(mockExam.id)
       setUploadCount((c) => c + 1)
+      if (preview) URL.revokeObjectURL(preview)
       setPreview(null)
       setSelectedFile(null)
     } finally {
@@ -156,13 +184,32 @@ export default function Upload() {
             <h2 className="text-base font-semibold text-text">确认试卷图片</h2>
             <p className="text-xs text-text-secondary mt-1">确认清晰后提交批改，也可以重新选择</p>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => handleRotate(-90)}
+              disabled={rotating}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-bg transition-colors disabled:opacity-60"
+            >
+              <RotateCcw size={17} />
+              左转90°
+            </button>
+            <button
+              onClick={() => handleRotate(90)}
+              disabled={rotating}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-bg transition-colors disabled:opacity-60"
+            >
+              <RotateCw size={17} />
+              右转90°
+            </button>
+          </div>
           <div className="rounded-2xl overflow-hidden border border-border bg-bg">
-            <img src={preview} alt="preview" className="w-full object-cover max-h-80" />
+            <img src={preview} alt="preview" className="w-full max-h-80 object-contain bg-bg" />
           </div>
 
           <div className="flex gap-3">
             <button
               onClick={() => {
+                if (preview) URL.revokeObjectURL(preview)
                 setPreview(null)
                 setSelectedFile(null)
               }}
